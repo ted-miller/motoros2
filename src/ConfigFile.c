@@ -762,6 +762,11 @@ void Ros_ConfigFile_Parse()
 
     Ros_ConfigFile_SetAllDefaultValues();
 
+    sprintf(g_nodeConfigSettings.agent_ip_address, "192.168.1.178");
+    sprintf(g_nodeConfigSettings.agent_port_number, "8888");
+    Ros_ConfigFile_PrintActiveConfiguration(&g_nodeConfigSettings);
+    return;
+
 #if defined (YRC1000) || defined (YRC1000u)
     //config file always resides on USB for DX200/FS100, so only check
     //on YRC1000 and micro
