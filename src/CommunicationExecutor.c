@@ -65,25 +65,32 @@ void Ros_Communication_ConnectToAgent()
     //ROS traffic (https://github.com/Yaskawa-Global/motoros2/issues/57)
     UCHAR macId[6];
   
-    STATUS status = Ros_GetMacAddress(ROS_USER_LAN1, macId);
-    if (status != OK)
-    {
-        Ros_Debug_BroadcastMsg("%s: Ros_GetMacAddress: iface: %d; error: %d",
-            __func__, ROS_USER_LAN1, status);
-        motoRosAssert_withMsg(FALSE, SUBCODE_FAIL_MP_NICDATA_INIT0,
-            "Must enable ETHERNET function");
-    }
+//    STATUS status = Ros_GetMacAddress(ROS_USER_LAN1, macId);
+//    if (status != OK)
+//    {
+//        Ros_Debug_BroadcastMsg("%s: Ros_GetMacAddress: iface: %d; error: %d",
+//            __func__, ROS_USER_LAN1, status);
+//        motoRosAssert_withMsg(FALSE, SUBCODE_FAIL_MP_NICDATA_INIT0,
+//            "Must enable ETHERNET function");
+//    }
+//
+//#if defined (YRC1000) || defined (YRC1000u)
+//    //Try second interface if first one didn't succeed
+//    if (status != OK && (status = Ros_GetMacAddress(ROS_USER_LAN2, macId)) != OK)
+//    {
+//        Ros_Debug_BroadcastMsg("%s: Ros_GetMacAddress: iface: %d; error: %d",
+//            __func__, ROS_USER_LAN2, status);
+//        motoRosAssert_withMsg(FALSE, SUBCODE_FAIL_MP_NICDATA_INIT1,
+//            "Must enable ETHERNET function");
+//    }
+//#endif
 
-#if defined (YRC1000) || defined (YRC1000u)
-    //Try second interface if first one didn't succeed
-    if (status != OK && (status = Ros_GetMacAddress(ROS_USER_LAN2, macId)) != OK)
-    {
-        Ros_Debug_BroadcastMsg("%s: Ros_GetMacAddress: iface: %d; error: %d",
-            __func__, ROS_USER_LAN2, status);
-        motoRosAssert_withMsg(FALSE, SUBCODE_FAIL_MP_NICDATA_INIT1,
-            "Must enable ETHERNET function");
-    }
-#endif
+    macId[0] = 1;
+    macId[1] = 2;
+    macId[2] = 3;
+    macId[3] = 4;
+    macId[4] = 5;
+    macId[5] = 6;
   
     uint32_t client_key = 0;
     memcpy(&client_key, macId+2, sizeof(client_key));
@@ -304,7 +311,7 @@ void Ros_Communication_StartExecutors(SEM_ID semCommunicationExecutorStatus)
 
     rcl_timer_t timerPingAgent = rcl_get_zero_initialized_timer();
     rcl_timer_t timerPublishActionFeedback = rcl_get_zero_initialized_timer();
-    rcl_timer_t timerMonitorUserLanState = rcl_get_zero_initialized_timer();
+    //rcl_timer_t timerMonitorUserLanState = rcl_get_zero_initialized_timer();
 
     mpSemTake(semCommunicationExecutorStatus, NO_WAIT);
 
@@ -316,11 +323,11 @@ void Ros_Communication_StartExecutors(SEM_ID semCommunicationExecutorStatus)
     rc = rclc_timer_init_default(&timerPublishActionFeedback, &g_microRosNodeInfo.support, RCL_MS_TO_NS(g_nodeConfigSettings.action_feedback_publisher_period), Ros_Communication_PublishActionFeedback);
     motoRosAssert_withMsg(rc == RCL_RET_OK, SUBCODE_FAIL_TIMER_INIT_ACTION_FB, "Failed creating rclc timer (%d)", (int)rc);
 
-    rc = rclc_timer_init_default(&timerMonitorUserLanState, &g_microRosNodeInfo.support,
-        RCL_MS_TO_NS(PERIOD_COMMUNICATION_USERLAN_LINK_CHECK_MS),
-        Ros_Communication_MonitorUserLanState);
-    motoRosAssert_withMsg(rc == RCL_RET_OK, SUBCODE_FAIL_TIMER_INIT_USERLAN_MONITOR,
-        "Failed creating rclc timer (%d)", (int)rc);
+    //rc = rclc_timer_init_default(&timerMonitorUserLanState, &g_microRosNodeInfo.support,
+    //    RCL_MS_TO_NS(PERIOD_COMMUNICATION_USERLAN_LINK_CHECK_MS),
+    //    Ros_Communication_MonitorUserLanState);
+    //motoRosAssert_withMsg(rc == RCL_RET_OK, SUBCODE_FAIL_TIMER_INIT_USERLAN_MONITOR,
+    //    "Failed creating rclc timer (%d)", (int)rc);
 
     //---------------------------------
     //Create executors
@@ -349,9 +356,9 @@ void Ros_Communication_StartExecutors(SEM_ID semCommunicationExecutorStatus)
 
     //NOTE: add userlan monitor timer to the io executor, to prevent timerPingAgent
     //from blocking it in case agent connection is lost (ie: ping needs to time out)
-    rc = rclc_executor_add_timer(&executor_io_control, &timerMonitorUserLanState);
-    motoRosAssert_withMsg(rc == RCL_RET_OK, SUBCODE_FAIL_TIMER_ADD_USERLAN_MONITOR,
-        "Failed adding timer (%d)", (int)rc);
+    //rc = rclc_executor_add_timer(&executor_io_control, &timerMonitorUserLanState);
+    //motoRosAssert_withMsg(rc == RCL_RET_OK, SUBCODE_FAIL_TIMER_ADD_USERLAN_MONITOR,
+    //    "Failed adding timer (%d)", (int)rc);
 
     rc = rclc_executor_add_action_server(&executor_motion_control,
         &g_actionServerFollowJointTrajectory,
@@ -440,17 +447,17 @@ void Ros_Communication_StartExecutors(SEM_ID semCommunicationExecutorStatus)
     //===========================================================
 
     // See if we should enable the timer which monitors user lan port link state
-    if (!g_nodeConfigSettings.userlan_monitor_enabled)
-    {
-        rc = rcl_timer_cancel(&timerMonitorUserLanState); RCL_UNUSED(rc);
-        Ros_Debug_BroadcastMsg("NOT starting UserLan link state monitor timer (disabled)");
-    }
-    else
-    {
-        //technically we're not starting it, but the message is clear enough
-        Ros_Debug_BroadcastMsg("Starting UserLan link state monitor (port: %d)",
-            g_nodeConfigSettings.userlan_monitor_port);
-    }
+    //if (!g_nodeConfigSettings.userlan_monitor_enabled)
+    //{
+    //    rc = rcl_timer_cancel(&timerMonitorUserLanState); RCL_UNUSED(rc);
+    //    Ros_Debug_BroadcastMsg("NOT starting UserLan link state monitor timer (disabled)");
+    //}
+    //else
+    //{
+    //    //technically we're not starting it, but the message is clear enough
+    //    Ros_Debug_BroadcastMsg("Starting UserLan link state monitor (port: %d)",
+    //        g_nodeConfigSettings.userlan_monitor_port);
+    //}
 
     // Start executor that runs the I/O executor
     // (This task deletes itself when the agent disconnects.)
@@ -504,10 +511,10 @@ void Ros_Communication_StartExecutors(SEM_ID semCommunicationExecutorStatus)
     Ros_Debug_BroadcastMsg("Cleanup I/O control executor");
     rclc_executor_fini(&executor_io_control);
 
-    Ros_Debug_BroadcastMsg("Cleanup timer for UserLan link state monitor");
-    rc = rcl_timer_fini(&timerMonitorUserLanState);
-    if (rc != RCL_RET_OK)
-        Ros_Debug_BroadcastMsg("Failed cleaning up UserLan link state monitor timer: %d", rc);
+    //Ros_Debug_BroadcastMsg("Cleanup timer for UserLan link state monitor");
+    //rc = rcl_timer_fini(&timerMonitorUserLanState);
+    //if (rc != RCL_RET_OK)
+    //    Ros_Debug_BroadcastMsg("Failed cleaning up UserLan link state monitor timer: %d", rc);
 
     Ros_Debug_BroadcastMsg("Cleanup timer for action feedback");
     rc = rcl_timer_fini(&timerPublishActionFeedback);
