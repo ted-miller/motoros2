@@ -23,6 +23,13 @@
 #define MAX_JOINT_NAME_LENGTH               32
 #define MAX_TF_FRAME_NAME_LENGTH            96
 
+typedef enum
+{
+    ACTION_NONE = 0,
+    ACTION_ARCON,
+    ACTION_ARCOF
+} ACTION_AT_DESTINATION;
+
 typedef struct
 {
     UINT64 time;
@@ -30,6 +37,8 @@ typedef struct
     UCHAR user;
     UCHAR tool;
     LONG inc[MP_GRP_AXES_NUM];
+    ACTION_AT_DESTINATION action;
+    int actionData[8];
 } Incremental_data;
 
 typedef struct
@@ -47,6 +56,8 @@ typedef struct
     UINT64 time;                    // time in millisecond
     double pos[MP_GRP_AXES_NUM];    // position in radians
     double vel[MP_GRP_AXES_NUM];    // velocity in radians/s
+    ACTION_AT_DESTINATION action;   // for process control
+    int actionData[8];
 } JointMotionData;
 
 //---------------------------------------------------------------
