@@ -103,6 +103,13 @@ void RosInitTask()
     Ros_Controller_SetIOState(IO_FEEDBACK_RESERVED_8, FALSE);
 
     //==================================
+    //Start UWI services
+    int tid = mpCreateTask(MP_PRI_TIME_CRITICAL, MP_STACK_SIZE, (FUNCPTR)mpTaskStartLincolnWelder, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    mpTaskPropNameSet(tid, "Lincoln_Thread");
+    //==================================
+
+
+    //==================================
     FOREVER
     {
         MOTOROS2_MEM_TRACE_START(full_connection_cycle);
@@ -137,7 +144,7 @@ void RosInitTask()
         // Start executor that performs all communication
         // (This task deletes itself when the agent disconnects.)
         SEM_ID semCommunicationExecutorStatus = mpSemBCreate(SEM_Q_FIFO, SEM_FULL);
-        int tid = mpCreateTask(MP_PRI_TIME_NORMAL, MP_STACK_SIZE,
+        tid = mpCreateTask(MP_PRI_TIME_NORMAL, MP_STACK_SIZE,
                                 (FUNCPTR)Ros_Communication_StartExecutors,
                                 (int)semCommunicationExecutorStatus, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 

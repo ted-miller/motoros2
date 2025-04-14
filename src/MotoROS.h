@@ -115,6 +115,8 @@
 #include "MotoROS_PlatformLib.h"
 #include "Ros_mpGetRobotCalibrationData.h"
 #include "RosMotoPlusConversionUtils.h"
+#include "UWI_ProcessInfo.h"
+#include "UWI_Control.h"
 
 extern void Ros_Sleep(float milliseconds);
 

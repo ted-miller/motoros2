@@ -381,6 +381,7 @@
     <None Include="..\libmicroros_yrc1000_humble\libmicroros.yrcLib_humble" />
     <None Include="..\config\motoros2_config.yaml" />
     <None Include="..\libmicroros_yrc1000_jazzy\libmicroros.yrcLib_jazzy" />
+    <None Include="..\lib\UWI_Lincoln.yrcLib" />
     <None Include="DX200_foxyCompilerArguments.mps" />
     <None Include="DX200_foxyLinkerArguments.mps" />
     <None Include="DX200_galacticCompilerArguments.mps" />
@@ -456,6 +457,8 @@
     <ClCompile Include="RosMotoPlusConversionUtils.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\lib\UWI_Control.h" />
+    <ClInclude Include="..\lib\UWI_ProcessInfo.h" />
     <ClInclude Include="ConfigFile.h" />
     <ClInclude Include="ErrorHandling.h" />
     <ClInclude Include="CommunicationExecutor.h" />
