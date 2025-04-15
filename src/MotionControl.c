@@ -1026,8 +1026,9 @@ void Ros_MotionControl_IncMoveLoopStart() //<-- IP_CLK priority task
                 }
                 else if (action == ACTION_ARCOF)
                 {
-                    uwiData.proc_no = 1;
-                    uwi_user_arcof(1, 0, &uwiData);
+                    //Don't need to call the arcof routine unless I want a crater condition (which wouldn't sync up with the motion)
+                    //uwiData.proc_no = 1;
+                    //uwi_user_arcof(1, 0, &uwiData);
                     Ros_Controller_SetIOState(IO_UWI_ARCON_TRIGGER, OFF);
                 }
 
