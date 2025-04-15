@@ -410,6 +410,8 @@ void Ros_MotionControl_AddToIncQueueProcess(CtrlGroup* ctrlGroup)
                 else
                     timeInc_ms = ctrlGroup->timeLeftover_ms;
 
+                Ros_Debug_BroadcastMsg("endTrajData->action %d", endTrajData->action);
+
                 int iterationCounter = 0;
                 // While interpolation time is smaller than new ROS point time
                 while ((curTrajData->time < endTrajData->time) && Ros_Controller_IsMotionReady())
@@ -482,8 +484,9 @@ void Ros_MotionControl_AddToIncQueueProcess(CtrlGroup* ctrlGroup)
                     incData.action = ACTION_NONE;
                     if (curTrajData->time >= endTrajData->time) //end of this point
                     {
-                        incData.action = curTrajData->action;
-                        memcpy(incData.actionData, curTrajData->actionData, sizeof(curTrajData->actionData));
+                        Ros_Debug_BroadcastMsg("end of this point: endTrajData->action %d", endTrajData->action);
+                        incData.action = endTrajData->action;
+                        memcpy(incData.actionData, endTrajData->actionData, sizeof(endTrajData->actionData));
                     }
 
                     // Add the increment to the queue
@@ -665,11 +668,15 @@ UINT16 Ros_MotionControl_ProcessQueuedTrajectoryPoint(motoros2_interfaces__srv__
         bzero(ctrlGroup->trajectoryIterator->actionData, sizeof(ctrlGroup->trajectoryIterator->actionData));
         if (request->arcon)
         {
+            Ros_Debug_BroadcastMsg("Received ARCON request.");
             ctrlGroup->trajectoryIterator->action = ACTION_ARCON;
             ctrlGroup->trajectoryIterator->actionData[0] = request->wfs;
         }
         else if (request->arcof)
+        {
+            Ros_Debug_BroadcastMsg("Received ARCOF request.");
             ctrlGroup->trajectoryIterator->action = ACTION_ARCOF;
+        }
     }
 
     for (grpIndex = 0; grpIndex < g_Ros_Controller.numGroup; grpIndex += 1)
@@ -721,7 +728,9 @@ void Ros_MotionControl_IncMoveLoopStart() //<-- IP_CLK priority task
     BOOL queueRead[MAX_CONTROLLABLE_GROUPS];                            // Flag indicating that new increment data was retrieve from the queue on this cycle.
     BOOL isMissingPulse;                                                // Flag that there are pulses send in last cycle that are missing from the command (pulses were not processed)
     BOOL hasUnprocessedData;                                            // Flag that at least one axis (any group) still has unprecessed data. (Used to continue sending data after the queue is empty.)
-    ACTION_AT_DESTINATION action;
+
+    #warning this should be an array for each group
+    ACTION_AT_DESTINATION action; 
     int actionData[8];
 
     bzero(newPulseInc, sizeof(LONG) * MP_GRP_AXES_NUM * MAX_CONTROLLABLE_GROUPS);
@@ -788,6 +797,14 @@ void Ros_MotionControl_IncMoveLoopStart() //<-- IP_CLK priority task
                             memcpy(&moveData.grp_pos_info[i].pos, &q->data[q->idx].inc, sizeof(LONG) * MP_GRP_AXES_NUM);
                             queueRead[i] = TRUE;
 
+                            //check for process-related actions
+                            if (q->data[q->idx].action != ACTION_NONE)
+                            {
+                                action = q->data[q->idx].action;
+                                memcpy(actionData, q->data[q->idx].actionData, sizeof(q->data[q->idx].actionData));
+                                Ros_Debug_BroadcastMsg("found arcon in queue");
+                            }
+
                             // increment index in the queue and decrease the count
                             q->idx = Q_OFFSET_IDX(q->idx, 1, Q_SIZE);
                             q->cnt--;
@@ -816,13 +833,6 @@ void Ros_MotionControl_IncMoveLoopStart() //<-- IP_CLK priority task
                                     for (axis = 0; axis < MP_GRP_AXES_NUM; axis++)
                                         moveData.grp_pos_info[i].pos[axis] += q->data[q->idx].inc[axis];
                                     inc_data_time = q->data[q->idx].time;
-
-                                    //check for process-related actions
-                                    if (q->data[q->idx].action != ACTION_NONE)
-                                    {
-                                        action = q->data[q->idx].action;
-                                        memcpy(actionData, q->data[q->idx].actionData, sizeof(q->data[q->idx].actionData));
-                                    }
 
                                     // increment index in the queue and decrease the count
                                     q->idx = Q_OFFSET_IDX(q->idx, 1, Q_SIZE);
@@ -1002,18 +1012,23 @@ void Ros_MotionControl_IncMoveLoopStart() //<-- IP_CLK priority task
 
                 if (action == ACTION_ARCON)
                 {
+                    Ros_Debug_BroadcastMsg("calling uwi_user_arcon");
+
                     uwiData.proc_no = 1;
                     uwiData.flags = 0x01;
                     uwiData.param[0] = actionData[0];
                     
                     uwi_user_arcon(1, 0, &uwiData);
+                    Ros_Controller_SetIOState(IO_UWI_ARCON_TRIGGER, ON);
 
                     action = ACTION_NONE;
                     bzero(actionData, sizeof(actionData));
                 }
                 else if (action == ACTION_ARCOF)
                 {
+                    uwiData.proc_no = 1;
                     uwi_user_arcof(1, 0, &uwiData);
+                    Ros_Controller_SetIOState(IO_UWI_ARCON_TRIGGER, OFF);
                 }
 
                 Ros_ActionServer_FJT_UpdateProgressTracker(&moveData);
