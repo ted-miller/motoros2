@@ -26,6 +26,8 @@
 #define IO_FEEDBACK_RESERVED_7              11136  //output# 903
 #define IO_FEEDBACK_RESERVED_8              11137  //output# 904
 
+#define IO_UWI_ARCON_TRIGGER                28521  //reserved by UWI
+
 #define INVALID_TASK                        -1
 
 #define MAX_CONTROLLABLE_GROUPS             8
