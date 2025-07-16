@@ -49,6 +49,8 @@ void Ros_ServiceStartTrajMode_Trigger(const void* request_msg, void* response_ms
     RCL_UNUSED(request_msg);
     StartTrajMode_Response* response = (StartTrajMode_Response*) response_msg;
 
+    fileForPathData = fopen("/bd0/PathInformation.csv", "w"); //create new file
+
     // trust ..
     response->result_code.value = MOTION_READY;
     rosidl_runtime_c__String__assign(&response->message, "");

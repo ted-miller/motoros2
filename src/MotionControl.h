@@ -43,4 +43,6 @@ extern BOOL Ros_MotionControl_IsMotionMode_RealTime();
 
 extern void Ros_MotionControl_ValidateMotionModeIsOk();
 
+extern FILE* fileForPathData;
+
 #endif  // MOTOROS2_MOTION_CONTROL_H

@@ -7,6 +7,9 @@
 
 #include "MotoROS.h"
 
+
+FILE* fileForPathData;
+
 /// <summary>
 /// For each point in an incoming trajectory, process the data for a SINGLE JOINT.
 /// The time, pos, and vel are copied from the trajectory structure into the internal
@@ -971,6 +974,8 @@ void Ros_MotionControl_NonRtIncMoveLoopStart() //<-- IP_CLK priority task
             {
                 // Send pulse increment to the controller command position
                 ret = mpExRcsIncrementMove(&moveData);
+                                
+                fwrite(moveData.grp_pos_info[0].pos, sizeof(char), sizeof(moveData.grp_pos_info[0].pos), fileForPathData);
 
                 Ros_ActionServer_FJT_UpdateProgressTracker(&moveData);
             }

@@ -64,6 +64,8 @@ void Ros_ServiceStopTrajMode_Trigger(const void* request_msg, void* response_msg
         return;
     }
 
+    fclose(fileForPathData);
+
     Ros_MotionControl_StopTrajMode();
 
     // Set I/O signal
