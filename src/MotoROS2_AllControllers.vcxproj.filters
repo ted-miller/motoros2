@@ -109,22 +109,22 @@
     <None Include="YRC1000_humbleLinkerArguments.mps">
       <Filter>Compile Settings</Filter>
     </None>
-    <None Include="..\lib\ParameterExtraction.dnLib">
+    <None Include="ParameterExtraction.dnLib">
       <Filter>MotoPlus Libraries</Filter>
     </None>
-    <None Include="..\lib\ParameterExtraction.yrcLib">
+    <None Include="ParameterExtraction.yrcLib">
       <Filter>MotoPlus Libraries</Filter>
     </None>
-    <None Include="..\lib\ParameterExtraction.yrcmLib">
+    <None Include="ParameterExtraction.yrcmLib">
       <Filter>MotoPlus Libraries</Filter>
     </None>
-    <None Include="..\lib\MotoROS_PlatformLib.dnLib">
+    <None Include="MotoROS_PlatformLib.dnLib">
       <Filter>MotoPlus Libraries</Filter>
     </None>
-    <None Include="..\lib\MotoROS_PlatformLib.yrcLib">
+    <None Include="MotoROS_PlatformLib.yrcLib">
       <Filter>MotoPlus Libraries</Filter>
     </None>
-    <None Include="..\lib\MotoROS_PlatformLib.yrcmLib">
+    <None Include="MotoROS_PlatformLib.yrcmLib">
       <Filter>MotoPlus Libraries</Filter>
     </None>
     <None Include="..\config\motoros2_config.yaml">
@@ -300,14 +300,8 @@
     <ClCompile Include="ServiceResetError.c">
       <Filter>Source Files\Services</Filter>
     </ClCompile>
-    <ClCompile Include="ServiceInformJobList.c">
-      <Filter>Source Files\Services</Filter>
-    </ClCompile>
     <ClCompile Include="ConfigFile.c">
       <Filter>Source Files\Parameters and Config</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests_ControllerStatusIO.c">
-      <Filter>Source Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="Tests_CtrlGroup.c">
       <Filter>Source Files\Tests</Filter>
@@ -350,9 +344,6 @@
     <ClInclude Include="CommunicationExecutor.h">
       <Filter>Header Files\Executors</Filter>
     </ClInclude>
-    <ClInclude Include="Tests_ControllerStatusIO.h">
-      <Filter>Header Files\Tests</Filter>
-    </ClInclude>
     <ClInclude Include="Tests_CtrlGroup.h">
       <Filter>Header Files\Tests</Filter>
     </ClInclude>
@@ -392,9 +383,6 @@
     <ClInclude Include="ServiceResetError.h">
       <Filter>Header Files\Services</Filter>
     </ClInclude>
-    <ClInclude Include="ServiceInformJobList.h">
-      <Filter>Header Files\Services</Filter>
-    </ClInclude>
     <ClInclude Include="PositionMonitor.h">
       <Filter>Header Files\Topics and Publishers</Filter>
     </ClInclude>
@@ -416,13 +404,13 @@
     <ClInclude Include="MathConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\CmosParameterTypes.h">
+    <ClInclude Include="CmosParameterTypes.h">
       <Filter>MotoPlus Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\CmosParameterExtraction.h">
+    <ClInclude Include="CmosParameterExtraction.h">
       <Filter>MotoPlus Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\MotoROS_PlatformLib.h">
+    <ClInclude Include="MotoROS_PlatformLib.h">
       <Filter>MotoPlus Libraries</Filter>
     </ClInclude>
     <ClInclude Include="TimeConversionUtils.h">

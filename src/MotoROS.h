@@ -9,7 +9,7 @@
 #define MOTOROS2_MOTOROS_H
 
 #define APPLICATION_NAME            "MotoROS2"
-#define APPLICATION_VERSION         "0.1.4pre"
+#define APPLICATION_VERSION         "0.1.3pre"
 
 #include "motoPlus.h"
 
@@ -70,11 +70,9 @@
 #include <motoros2_interfaces/srv/start_point_queue_mode.h>
 #include <motoros2_interfaces/srv/queue_traj_point.h>
 #include <motoros2_interfaces/srv/select_motion_tool.h>
-#include <motoros2_interfaces/srv/list_inform_jobs.h>
-#include <motoros2_interfaces/msg/inform_job_crud_result_codes.h>
-#include <motoros2_interfaces/srv/get_inform_job.h>
-#include <motoros2_interfaces/srv/put_inform_job.h>
-#include <motoros2_interfaces/srv/delete_inform_job.h>
+#include <motoros2_interfaces/srv/inform_job_get.h>
+#include <motoros2_interfaces/srv/inform_job_put.h>
+#include <motoros2_interfaces/srv/inform_job_delete.h>
 
 //============================================
 // MotoROS
@@ -99,10 +97,10 @@
 #include "ServiceStartPointQueueMode.h"
 #include "ServiceStopTrajMode.h"
 #include "ServiceSelectMotionTool.h"
-#include "ServiceInformJobList.h"
 #include "ServiceInformJobGet.h"
 #include "ServiceInformJobPut.h"
 #include "ServiceInformJobDelete.h"
+#include "ServiceInformJobShared.h"
 #include "MotionControl.h"
 #include "ConfigFile.h"
 #include "RosApiNameConstants.h"
@@ -110,8 +108,6 @@
 #include "Tests_CtrlGroup.h"
 #include "Tests_TestUtils.h"
 #include "Tests_RosMotoPlusConversionUtils.h"
-#include "Tests_ControllerStatusIO.h"
-#include "Tests_ActionServer_FJT.h"
 #include "FauxCommandLineArgs.h"
 #include "InformCheckerAndGenerator.h"
 #include "MathConstants.h"

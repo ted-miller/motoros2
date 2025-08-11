@@ -72,8 +72,6 @@ void RosInitTask()
     BOOL bTestResult = TRUE;
     bTestResult &= Ros_Testing_CtrlGroup();
     bTestResult &= Ros_Testing_RosMotoPlusConversionUtils();
-    bTestResult &= Ros_Testing_ControllerStatusIO();
-    bTestResult &= Ros_Testing_ActionServer_FJT();
     bTestResult ? Ros_Debug_BroadcastMsg("Testing SUCCESSFUL") : Ros_Debug_BroadcastMsg("!!! Testing FAILED !!!");
     Ros_Debug_BroadcastMsg("===");
 #endif
@@ -130,11 +128,9 @@ void RosInitTask()
         Ros_ServiceStartPointQueueMode_Initialize();
         Ros_ServiceStopTrajMode_Initialize();
         Ros_ServiceSelectMotionTool_Initialize();
-
-        Ros_ServiceListInformJobs_Initialize();
-        Ros_ServiceGetInformJob_Initialize();
-        Ros_ServicePutInformJob_Initialize();
-        Ros_ServiceDeleteInformJob_Initialize();
+        Ros_ServiceInformJobGet_Initialize();
+        Ros_ServiceInformJobPut_Initialize();
+        Ros_ServiceInformJobDelete_Initialize();
 
         // Start executor that performs all communication
         // (This task deletes itself when the agent disconnects.)
@@ -207,11 +203,9 @@ void RosInitTask()
         mpSemTake(semCommunicationExecutorStatus, WAIT_FOREVER);
         mpSemDelete(semCommunicationExecutorStatus);
 
-        Ros_ServiceDeleteInformJob_Cleanup();
-        Ros_ServicePutInformJob_Cleanup();
-        Ros_ServiceGetInformJob_Cleanup();
-        Ros_ServiceListInformJobs_Cleanup();
-
+        Ros_ServiceInformJobGet_Cleanup();
+        Ros_ServiceInformJobPut_Cleanup();
+        Ros_ServiceInformJobDelete_Cleanup();
         Ros_ServiceSelectMotionTool_Cleanup();
         Ros_ServiceStopTrajMode_Cleanup();
         Ros_ServiceStartTrajMode_Cleanup();

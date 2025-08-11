@@ -71,8 +71,6 @@ The provided Visual Studio solution should be set up correctly.
 Pay special attention to any errors or warnings displayed by Visual Studio as part of the build process.
 
 If the error persists, you may need to upgrade the robot controller system software.
-For YRC1000, the controller must have `YAS2.80.00-00` or higher.
-For YRC1000micro, the controller must have `YBS2.45.00-00` or higher.
 Please contact Yaskawa technical support for assistance with upgrading the controller.
 
 ### Alarm: 1020[6]
@@ -222,7 +220,7 @@ Your robot controller requires internal configuration changes to support the Mot
 
 For DX200: ensure the controller is updated to at least `DN2.44.00-00`.
 
-For YRC1000 and YRC1000micro: ensure the controller is updated to at least `YAS2.80.00-00` (for YRC1000) and `YBS2.45.00-00` (for YRC1000micro).
+For YRC1000 and YRC1000micro: ensure the controller is updated to at least `YAS2.80.00-00` (for YRC1000) and `YBS2.31.00-00` (for YRC1000micro).
 If the system software version is below this, please contact Yaskawa Motoman for assistance with upgrading the controller.
 
 Then boot the controller into *Maintenance* mode by holding `{Main Menu}` on the keypad.
@@ -374,7 +372,7 @@ Now follow the installation tutorial to install the latest version.
 
 Additionally, the robot controller must meet a minimum version of system software.
 For YRC1000, the controller must have `YAS2.80.00-00` or higher.
-For YRC1000micro, the controller must have `YBS2.45.00-00` or higher.
+For YRC1000micro, the controller must have `YBS2.31.00-00` or higher.
 Please contact Yaskawa technical support for assistance in upgrading the controller software.
 
 ### Alarm: 8003[9]
@@ -398,7 +396,7 @@ Now follow the installation tutorial to install the latest version.
 
 Additionally, the robot controller must meet a minimum version of system software.
 For YRC1000, the controller must have `YAS2.80.00-00` or higher.
-For YRC1000micro, the controller must have `YBS2.45.00-00` or higher.
+For YRC1000micro, the controller must have `YBS2.31.00-00` or higher.
 Please contact Yaskawa technical support for assistance in upgrading the controller software.
 
 ### Alarm: 8003[11]
@@ -991,39 +989,6 @@ If the behavior persists, save a copy of the output of the [debug-listener scrip
 Open a new issue on the [Issue tracker](https://github.com/yaskawa-global/motoros2/issues), describe the problem and attach `PANELBOX.LOG` and the debug log to the issue.
 Include a verbatim copy of the alarm text as seen on the teach pendant (alarm number and `[subcode]`).
 
-### Alarm: 8013[16]
-
-*Example:*
-
-```text
-ALARM 8013
- No calibration: invalid TF
-[16]
-```
-
-*Solution:*
-MotoROS2 was unable to load any kinematic calibration data during initialisation.
-This calibration data is used to update the origins of TF frames broadcast by MotoROS2 if TF broadcasts are enabled.
-
-Without (valid) calibration data the origins of distinct TF trees might overlap (see [Incorrect transform tree origin with multi-robot setups](../README.md#incorrect-transform-tree-origin-with-multi-robot-setups)), creating potentially dangerous situations when that TF data is consumed by applications which for example use it for collision avoidance motion planning.
-
-This alarm is only raised if all of the following conditions are true:
-
-1. MotoROS2 is configured to broadcast TF (`publish_tf` is `true`)
-1. the controller is configured with multiple motion groups (ie: multiple robots)
-1. none of the motion groups have been calibrated against each other
-
-The alarm can be prevented by performing (robot) group calibration or by disabling TF broadcasts (set `publish_tf` to `false`).
-
-In case TF broadcasting for uncalibrated multi-group systems is still desired, the alarm can be disabled by setting the `ignore_missing_calib_data` item in the MotoROS2 configuration to `true` (default is: `false`).
-When disabling the alarm, make absolutely sure consuming applications are capable of disambiguating potentially overlapping TF trees.
-
-In case of any updates to the configuration file, [changes will need to be propagated to the Yaskawa controller](../README.md#updating-the-configuration).
-
-In case the alarm is still raised after calibration was performed, TF broadcasting was disabled and/or the alarm was disabled, save a copy of the output of the [debug-listener script](#debug-log-client) and the `PANELBOX.LOG` and `RBCALIB.DAT` files from the robot's teach pendant.
-Open a new issue on the [Issue tracker](https://github.com/yaskawa-global/motoros2/issues), describe the problem and attach `PANELBOX.LOG`, `RBCALIB.DAT` and the debug log to the issue.
-Include a verbatim copy of the alarm text as seen on the teach pendant (alarm number and `[subcode]`).
-
 ### Alarm: 8014[0]
 
 *Example:*
@@ -1119,26 +1084,3 @@ ALARM 8015
 *Solution:*
 Open a new ticket on the MotoROS2 [Issue tracker](https://github.com/yaskawa-global/motoros2/issues).
 Please include a copy of the `RBCALIB.DAT` from your robot controller along with the output from the [Debug log client](#debug-log-client).
-
-### Alarm: 8016[0]
-
-*Example:*
-
-```text
-ALARM 8016
- Set job-cycle to AUTO
-[0]
-```
-
-*Solution:*
-The job cycle is currently set to `STEP` and MotoROS2 was unable to automatically change it to `AUTO`.
-This will prevent the `INIT_ROS` from operating continuously and will prevent the software from accepting any incoming trajectories.
-
- 1. upgrade to *MANAGEMENT* security level by touching `[System Info]`→`[Security]` (default password is all `9`'s)
- 1. touch `[Job]`→`[Cycle]`
- 1. change `WORK SELECT` to `AUTO`
- 1. touch `[Setup]`→`[Operate Cond.]`
- 1. change `CYCLE SWITCH IN REMOTE MODE` to `AUTO`
-
-If the problem persists, verify that the `CIOPRG.LST` ladder program is not writing to `#40050 - #40052`.
-Please contact Yaskawa Technical Support for assistance if you are not familiar with the Concurrent I/O Ladder Program.

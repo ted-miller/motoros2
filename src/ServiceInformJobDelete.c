@@ -1,164 +1,85 @@
-//ServiceInformJobDelete.c
+// ServiceInformJobDelete.c
 
-// SPDX-FileCopyrightText: 2024, Yaskawa America, Inc.
-// SPDX-FileCopyrightText: 2024, Delft University of Technology
+// SPDX-FileCopyrightText: 2022-2023, Yaskawa America, Inc.
+// SPDX-FileCopyrightText: 2022-2023, Delft University of Technology
 //
 // SPDX-License-Identifier: Apache-2.0
 
 #include "MotoROS.h"
+#include "ServiceInformJobDelete.h"
 #include "ServiceInformJobShared.h"
 
-rcl_service_t g_serviceDeleteInformJob;
+rcl_service_t g_serviceInformJobDelete;
+ServiceInformJobDelete_Messages g_messages_InformJobDelete;
 
-ServiceDeleteInformJob_Messages g_messages_DeleteInformJob;
-
-typedef motoros2_interfaces__srv__DeleteInformJob_Request DeleteInformJobRequest;
-typedef motoros2_interfaces__srv__DeleteInformJob_Response DeleteInformJobResponse;
-
-
-static micro_ros_utilities_memory_rule_t mem_rules_request_[] =
+void Ros_ServiceInformJobDelete_Initialize()
 {
-    //longer than maximum job name length (32 bytes + some extra)
-    {"name", 64},
-};
-static micro_ros_utilities_memory_conf_t mem_conf_request_ = { 0 };
-static const rosidl_message_type_support_t* type_support_request_ = NULL;
+    MOTOROS2_MEM_TRACE_START(svc_inform_delete_init);
 
-
-static micro_ros_utilities_memory_rule_t mem_rules_response_[] =
-{
-    {"message", 64},
-};
-static micro_ros_utilities_memory_conf_t mem_conf_response_ = { 0 };
-static const rosidl_message_type_support_t* type_support_response_ = NULL;
-
-
-void Ros_ServiceDeleteInformJob_Initialize()
-{
-    MOTOROS2_MEM_TRACE_START(svc_delete_inform_job_init);
-
-    // init request
-    mem_conf_request_.allocator = &g_motoros2_Allocator;
-    mem_conf_request_.rules = mem_rules_request_;
-    mem_conf_request_.n_rules = sizeof(mem_rules_request_) / sizeof(mem_rules_request_[0]);
-    type_support_request_ = ROSIDL_GET_MSG_TYPE_SUPPORT(motoros2_interfaces, srv, DeleteInformJob_Request);
-    motoRosAssert_withMsg(
-        micro_ros_utilities_create_message_memory(
-            type_support_request_, &g_messages_DeleteInformJob.request, mem_conf_request_),
-        SUBCODE_FAIL_INIT_SERVICE_DELETE_INFORM_JOB, "Failed to init request");
-
-    // init response
-    mem_conf_response_.allocator = &g_motoros2_Allocator;
-    mem_conf_response_.rules = mem_rules_response_;
-    mem_conf_response_.n_rules = sizeof(mem_rules_response_) / sizeof(mem_rules_response_[0]);
-    type_support_response_ = ROSIDL_GET_MSG_TYPE_SUPPORT(motoros2_interfaces, srv, DeleteInformJob_Response);
-    motoRosAssert_withMsg(
-        micro_ros_utilities_create_message_memory(
-            type_support_response_, &g_messages_DeleteInformJob.response, mem_conf_response_),
-        SUBCODE_FAIL_INIT_SERVICE_DELETE_INFORM_JOB, "Failed to init response");
-
-    // init service server
-    const rosidl_service_type_support_t* type_support =
-        ROSIDL_GET_SRV_TYPE_SUPPORT(motoros2_interfaces, srv, DeleteInformJob);
-    rcl_ret_t ret = rclc_service_init_default(&g_serviceDeleteInformJob,
-        &g_microRosNodeInfo.node, type_support, SERVICE_NAME_DELETE_INFORM_JOB);
-    motoRosAssert_withMsg(ret == RCL_RET_OK,
-        SUBCODE_FAIL_INIT_SERVICE_DELETE_INFORM_JOB, "Failed to init service (%d)", (int)ret);
-
-    MOTOROS2_MEM_TRACE_REPORT(svc_delete_inform_job_init);
-}
-
-void Ros_ServiceDeleteInformJob_Cleanup()
-{
     rcl_ret_t ret;
-    MOTOROS2_MEM_TRACE_START(svc_delete_inform_job_fini);
 
-    Ros_Debug_BroadcastMsg("Cleanup service " SERVICE_NAME_DELETE_INFORM_JOB);
-    ret = rcl_service_fini(&g_serviceDeleteInformJob, &g_microRosNodeInfo.node);
+    const rosidl_service_type_support_t* type_support = ROSIDL_GET_SRV_TYPE_SUPPORT(motoros2_interfaces, srv, InformJobDelete);
+
+    ret = rclc_service_init_default(&g_serviceInformJobDelete, &g_microRosNodeInfo.node, type_support, SERVICE_NAME_INFORM_JOB_DELETE);
+    motoRosAssert_withMsg(ret == RCL_RET_OK, SUBCODE_FAIL_INIT_SERVICE_INFORM_DELETE, "Failed to init service (%d)", (int)ret);
+
+    rosidl_runtime_c__String__init(&g_messages_InformJobDelete.req.job_name);
+    rosidl_runtime_c__String__init(&g_messages_InformJobDelete.resp.message);
+
+    MOTOROS2_MEM_TRACE_REPORT(svc_inform_delete_init);
+}
+
+void Ros_ServiceInformJobDelete_Cleanup()
+{
+    MOTOROS2_MEM_TRACE_START(svc_inform_delete_fini);
+
+    rcl_ret_t ret;
+
+    ret = rcl_service_fini(&g_serviceInformJobDelete, &g_microRosNodeInfo.node);
     if (ret != RCL_RET_OK)
-        Ros_Debug_BroadcastMsg("Failed cleaning up " SERVICE_NAME_DELETE_INFORM_JOB " service: %d", ret);
-    rosidl_runtime_c__String__fini(&g_messages_DeleteInformJob.response.message);
+        Ros_Debug_BroadcastMsg("Failed cleaning up " SERVICE_NAME_INFORM_JOB_DELETE " service: %d", ret);
 
-    bool result = micro_ros_utilities_destroy_message_memory(
-        type_support_request_, &g_messages_DeleteInformJob.request, mem_conf_request_);
-    Ros_Debug_BroadcastMsg("%s: cleanup request msg memory: %d", __func__, result);
+    rosidl_runtime_c__String__fini(&g_messages_InformJobDelete.req.job_name);
+    rosidl_runtime_c__String__fini(&g_messages_InformJobDelete.resp.message);
 
-    result = micro_ros_utilities_destroy_message_memory(
-        type_support_response_, &g_messages_DeleteInformJob.response, mem_conf_response_);
-    Ros_Debug_BroadcastMsg("%s: cleanup response msg memory: %d", __func__, result);
-
-    MOTOROS2_MEM_TRACE_REPORT(svc_delete_inform_job_fini);
+    MOTOROS2_MEM_TRACE_REPORT(svc_inform_delete_fini);
 }
 
-static bool ValidateRequest(DeleteInformJobRequest const* request, DeleteInformJobResponse* const response)
+void Ros_ServiceInformJobDelete_Trigger(const void* request_msg, void* response_msg)
 {
-    if (Ros_strnlen(RAW_CHAR_P(request->name), MAX_JOB_NAME_LEN - 1) == 0)
+    motoros2_interfaces__srv__InformJobDelete_Request* request = (motoros2_interfaces__srv__InformJobDelete_Request*)request_msg;
+    motoros2_interfaces__srv__InformJobDelete_Response* response = (motoros2_interfaces__srv__InformJobDelete_Response*)response_msg;
+
+    response->success = FALSE;
+
+    // Validate job name
+    if (strlen(request->job_name.data) == 0 || strlen(request->job_name.data) > 8)
     {
-        rosidl_runtime_c__String__assign(&response->message, "Empty job name not allowed");
-        response->result_code = 11;
-        return false;
-    }
-    //check against some 'arbitrary' length longer than the allowed maximum
-    if (Ros_strnlen(RAW_CHAR_P(request->name), 64) >= MAX_JOB_NAME_LEN)
-    {
-        rosidl_runtime_c__String__assign(&response->message, "Job name too long");
-        response->result_code = 12;
-        return false;
-    }
-
-    return true;
-}
-
-void Ros_ServiceDeleteInformJob_Trigger(const void* request_msg, void* response_msg)
-{
-    //TODO(gavanderhoorn): should we only allow this in REMOTE mode?
-
-    DeleteInformJobRequest const* request = (DeleteInformJobRequest*)request_msg;
-    DeleteInformJobResponse* response = (DeleteInformJobResponse*)response_msg;
-
-    Ros_Debug_BroadcastMsg("%s: enter", __func__);
-
-    Ros_Debug_BroadcastMsg("%s: request to delete job with name: '%s'",
-        __func__, RAW_CHAR_P(request->name));
-
-    response->result_code = 0;
-    rosidl_runtime_c__String__assign(&response->message, "");
-
-    //request validation
-    if (!ValidateRequest(request, response))
-    {
-        Ros_Debug_BroadcastMsg("%s: request validation failed, aborting", __func__);
-        goto DONE;
+        response->result_code = INFORM_JOB_RESULT_INVALID_JOB_NAME;
+        rosidl_runtime_c__String__assign(&response->message, Ros_ServiceInformJob_ResultCodeToString(response->result_code));
+        return;
     }
 
-    //validated, attempt deletion
-    MP_DELETE_JOB_SEND_DATA sData;
-    MP_STD_RSP_DATA rData;
-
-    //TODO(gavanderhoorn): check terminating nul
-    //TODO(gavanderhoorn): check return value
-    bzero(&sData, sizeof(sData));
-    strncpy(sData.cJobName, RAW_CHAR_P(request->name), MAX_JOB_NAME_LEN - 1);
-    LONG status = mpDeleteJob(&sData, &rData);
-    if (status != OK)
+    // Check if file exists before deleting
+    int fd = mpOpenFile(request->job_name.data, "r");
+    if (fd < 0)
     {
-        Ros_Debug_BroadcastMsg("%s: error deleting job: %d (0x%04X)", __func__, status, rData.err_no);
-        rosidl_runtime_c__String__assign(&response->message, "M+ API error: can't delete job");
-        response->result_code = 13;
-        goto DONE;
+        response->result_code = INFORM_JOB_RESULT_JOB_NOT_FOUND;
+        rosidl_runtime_c__String__assign(&response->message, Ros_ServiceInformJob_ResultCodeToString(response->result_code));
+        return;
+    }
+    mpClose(fd);
+
+    // Delete file
+    if (mpDeleteFile(request->job_name.data) != 0)
+    {
+        response->result_code = INFORM_JOB_RESULT_DELETE_ERROR;
+        rosidl_runtime_c__String__assign(&response->message, Ros_ServiceInformJob_ResultCodeToString(response->result_code));
+        return;
     }
 
-    if (rData.err_no != 0)
-    {
-        Ros_Debug_BroadcastMsg("%s: error deleting job: 0x%04X", __func__, rData.err_no);
-        rosidl_runtime_c__String__assign(&response->message, "Could not delete job");
-        response->result_code = -rData.err_no;
-        goto DONE;
-    }
-
-    rosidl_runtime_c__String__assign(&response->message, "Success");
-    response->result_code = 1;
-
-DONE:
-    Ros_Debug_BroadcastMsg("%s: exit", __func__);
+    // Set response
+    response->success = TRUE;
+    response->result_code = INFORM_JOB_RESULT_OK;
+    rosidl_runtime_c__String__assign(&response->message, Ros_ServiceInformJob_ResultCodeToString(response->result_code));
 }

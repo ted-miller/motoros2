@@ -8,10 +8,10 @@ on:
   pull_request:
   workflow_dispatch:
 jobs:
-  md_lint:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: DavidAnson/markdownlint-cli2-action@v16
+    - uses: DavidAnson/markdownlint-cli2-action@v15
       with:
         globs: "**/*.md"

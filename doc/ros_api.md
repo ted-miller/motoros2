@@ -73,17 +73,6 @@ Note: this topic is only namespaced if a namespace is configured *and* `namespac
 
 ## Services
 
-### inform_job/list
-
-Type: [motoros2_interfaces/srv/ListInformJobs](https://github.com/Yaskawa-Global/motoros2_interfaces/blob/e6d75c5ead964542f7828171a6cff409d7aac592/srv/ListInformJobs.srv)
-
-Retrieve the list of INFORM jobs present on the controller.
-
-Note: this service supports a maximum of `1024` INFORM jobs.
-On controllers with more jobs than this maximum, MotoROS2 will return an error to the client and the `names` field in the service response will be empty.
-
-Please refer to the documentation embedded in the service definition for more information about service fields and general behaviour.
-
 ### read_group_io
 
 Type: [motoros2_interfaces/srv/ReadGroupIO](https://github.com/yaskawa-global/motoros2_interfaces/blob/d6805d32714df4430f7db3d8ddc736c340ddeba8/srv/ReadGroupIO.srv)
@@ -122,8 +111,7 @@ Note: errors and alarms which require physical operator intervention (e-stops, e
 
 Type: [motoros2_interfaces/srv/StartTrajMode](https://github.com/yaskawa-global/motoros2_interfaces/blob/d6805d32714df4430f7db3d8ddc736c340ddeba8/srv/StartTrajMode.srv)
 
-Attempts to enable servo drives, activate trajectory mode, and set the job-cycle mode to allow execution of INIT_ROS.
-This allows the action server (`follow_joint_trajectory`, see below) to execute incoming `FollowJointTrajectory` action goals.
+Attempt to enable servo drives and activate trajectory mode, allowing the action server (`follow_joint_trajectory`, see below) to execute incoming `FollowJointTrajectory` action goals.
 
 Note: this service may fail if controller state prevents it from transitioning to trajectory mode.
 Inspect the `result_code` to determine the cause.
@@ -135,8 +123,7 @@ The `reset_error` service can be used to attempt to reset errors and alarms.
 
 Type: [motoros2_interfaces/srv/StartPointQueueMode](https://github.com/yaskawa-global/motoros2_interfaces/blob/d6805d32714df4430f7db3d8ddc736c340ddeba8/srv/StartPointQueueMode.srv)
 
-Attempts to enable servo drives, activate the point-queue motion mode, and set the job-cycle mode to allow execution of INIT_ROS.
-This allows the `queue_traj_point` service (see below) to execute incoming `QueueTrajPoint` requests.
+Attempt to enable servo drives and activate the point-queue motion mode, allowing the `queue_traj_point` service to execute incoming `QueueTrajPoint` requests.
 
 Note: this service may fail if controller state prevents it from transitioning to trajectory mode.
 Inspect the `result_code` to determine the cause.
@@ -161,7 +148,7 @@ Type: [motoros2_interfaces/srv/QueueTrajPoint](https://github.com/yaskawa-global
 
 Submit a `JointTrajectoryPoint` to be queued for continuous motion.
 
-The `start_point_queue_mode` service must have been called prior to attempting to use this service.
+The `start_point_queue_mode` service must have been called prior to attempting this service.
 
 If this service fails, inspect the `QueueResultEnum` field in the reply to determine the cause.
 The most common type of failure is `BUSY`.
